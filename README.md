@@ -32,7 +32,7 @@ The goal of this project is to compare the output trees of Prim's algorithm and 
 0 0 0 4 0 5 0
 0 0 6 0 5 0 7
 0 0 0 0 0 7 0
-
+```
 ---
 
 <a name="中文"></a>
@@ -63,7 +63,7 @@ The goal of this project is to compare the output trees of Prim's algorithm and 
 0 0 0 4 0 5 0
 0 0 6 0 5 0 7
 0 0 0 0 0 7 0
-
+```
 
 ---
 
@@ -95,3 +95,4 @@ The goal of this project is to compare the output trees of Prim's algorithm and 
 0 0 0 4 0 5 0
 0 0 6 0 5 0 7
 0 0 0 0 0 7 0
+```
