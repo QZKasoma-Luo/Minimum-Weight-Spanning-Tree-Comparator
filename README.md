@@ -23,6 +23,7 @@ The goal of this project is to compare the output trees of Prim's algorithm and 
 **Output:** A boolean value indicating whether the results of the two algorithms match.
 
 **Input Example:**
+'''text
 7
 0 1 2 0 0 0 0
 1 0 3 4 0 0 0
@@ -53,6 +54,7 @@ The goal of this project is to compare the output trees of Prim's algorithm and 
 **输出：** 一个布尔值，表示两种算法的结果是否匹配。
 
 **输入示例：**
+'''text
 7
 0 1 2 0 0 0 0
 1 0 3 4 0 0 0
@@ -84,6 +86,7 @@ The goal of this project is to compare the output trees of Prim's algorithm and 
 **出力：** ２つのアルゴリズムの結果が一致しているかどうかを示すブール値。
 
 **入力例：**
+'''text
 7
 0 1 2 0 0 0 0
 1 0 3 4 0 0 0
