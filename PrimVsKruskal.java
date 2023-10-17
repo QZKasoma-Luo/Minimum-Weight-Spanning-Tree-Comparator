@@ -47,6 +47,28 @@ public class PrimVsKruskal{
 		value of G[i][j] gives the weight of the edge.
 		No entries of G will be negative.
 	*/
+
+	//Add and inital the variables from algs4.jar
+	private EdgeWeightedGraph EW_Graph; //transform the input txt file to a edge weighted graph
+	private Queue<Edge> MST = new Queue<>();
+	private IndexMinPQ<Double> pq; //eligible crossing edges
+	private boolean[] marked; //true if v in MST
+
+	//Transfor the input txt file to a edge weighted graph variable to be able to pass to the eagerPrim and Kruskal function
+	public void parameterTransfrom(double[][] G){
+		this.EW_Graph = new EdgeWeightedGraph(G.length);
+		for(int i = 0; i < G.length; i++){
+			for(int j = 0; j < G.length; j++){
+				if(G[i][j] > 0.0){
+					Edge e = new Edge(i, j, G[i][j]);
+					EW_Graph.addEdge(e);
+				}
+			}
+		}
+		marked = new boolean[EW_Graph.V()];
+		pq = new IndexMinPQ<>(EW_Graph.V());
+	}
+
 	static boolean PrimVsKruskal(double[][] G){
 		int n = G.length;
 
@@ -62,6 +84,7 @@ public class PrimVsKruskal{
 
 		return pvk;	
 	}
+	
 		
 	/* main()
 	   Contains code to test the PrimVsKruskal function. You may modify the
