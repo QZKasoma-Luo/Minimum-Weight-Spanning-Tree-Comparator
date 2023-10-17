@@ -37,22 +37,13 @@
 //Do not change the name of the PrimVsKruskal class
 public class PrimVsKruskal{
 
-	/* PrimVsKruskal(G)
-		Given an adjacency matrix for connected graph G, with no self-loops or parallel edges,
-		determine if the minimum spanning tree of G found by Prim's algorithm is equal to 
-		the minimum spanning tree of G found by Kruskal's algorithm.
-		
-		If G[i][j] == 0.0, there is no edge between vertex i and vertex j
-		If G[i][j] > 0.0, there is an edge between vertices i and j, and the
-		value of G[i][j] gives the weight of the edge.
-		No entries of G will be negative.
-	*/
-
-	//Add and inital the variables from algs4.jar
+	//Add and inital the variables from algs4.jar, some of the variables and comments are from alg4.jar
 	private EdgeWeightedGraph EW_Graph; //transform the input txt file to a edge weighted graph
 	private Queue<Edge> MST = new Queue<>();
 	private IndexMinPQ<Double> pq; //eligible crossing edges
 	private boolean[] marked; //true if v in MST
+	private Edge[] edgeTo;        // edgeTo[v] = shortest edge from tree vertex to non-tree vertex
+    private double[] distTo;      // distTo[v] = weight of shortest such edge
 
 	//Transfor the input txt file to a edge weighted graph variable to be able to pass to the eagerPrim and Kruskal function
 	public void parameterTransfrom(double[][] G){
@@ -68,6 +59,32 @@ public class PrimVsKruskal{
 		marked = new boolean[EW_Graph.V()];
 		pq = new IndexMinPQ<>(EW_Graph.V());
 	}
+	
+	public void eagerPrim(EdgeWeightedGraph G){
+		//initialize the edgeTo and distTo
+		edgeTo = new Edge[G.V()];
+		distTo = new double[G.V()];
+		for(int v = 0; v < G.V(); v++){
+			distTo[v] = Double.POSITIVE_INFINITY;
+		}
+		
+		//initialize the first vertex
+		distTo[0] = 0.0;
+		pq.insert(0,0.0);
+		while(!pq.isEmpty()){
+			visit(G, pq.delMin());
+		}
+	}
+	/* PrimVsKruskal(G)
+		Given an adjacency matrix for connected graph G, with no self-loops or parallel edges,
+		determine if the minimum spanning tree of G found by Prim's algorithm is equal to 
+		the minimum spanning tree of G found by Kruskal's algorithm.
+		
+		If G[i][j] == 0.0, there is no edge between vertex i and vertex j
+		If G[i][j] > 0.0, there is an edge between vertices i and j, and the
+		value of G[i][j] gives the weight of the edge.
+		No entries of G will be negative.
+	*/
 
 	static boolean PrimVsKruskal(double[][] G){
 		int n = G.length;
