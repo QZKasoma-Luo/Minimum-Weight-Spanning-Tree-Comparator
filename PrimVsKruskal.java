@@ -47,19 +47,77 @@ public class PrimVsKruskal{
 		value of G[i][j] gives the weight of the edge.
 		No entries of G will be negative.
 	*/
-	private int[] primEdgeTo;
-	private double[] primDistTo;
-	private boolean[] primMarked;
-	private IndexMinPQ<Double> primPQ;
+	private static Queue<double[]> eagerPrim(double[][] G, int G_length){
+		double[] distTo = new double[G_length]; //the shortest edge from the current vertices to the mst
+		int edgeTo[] = new int[G_length]; // store the parent vertices of the current vertices
+		boolean[] marked = new boolean[G_length]; // ture if the vertices is in the mst
+		IndexMinPQ<Double> pq = new IndexMinPQ<Double>(G_length);// choose the lightest edge and delete it from the pq and add it to mst
+		Queue<double[]> primMst = new Queue<double[]>(); // store the mst
+
+		for(int i = 0; i < G_length; i++){
+			distTo[i] = Double.POSITIVE_INFINITY;
+		}
+		distTo[0] = 0.0;
+		pq.insert(0, 0.0);
+
+		while(!pq.isEmpty()){ // while pq is not empty it means there are still vertices not in the mst
+			int minEdgeVertex = pq.delMin(); // delete the lightest edge to a veretx from pq and return that veretx to minEdgeVertex
+			marked[minEdgeVertex] = true; // mark the current minEdgeVertex is visited
+			if(minEdgeVertex != 0){ // check if the vertex is not the root
+				// add the edge to the mst
+				primMst.enqueue(new double[] {edgeTo[minEdgeVertex], minEdgeVertex, G[edgeTo[minEdgeVertex]][minEdgeVertex]});
+			}
+
+			for(int p = 0; p < G_length; p++){ // check all the vertices to update their shortest edge to the mst
+				if(G[minEdgeVertex][p] > 0.0 && !marked[p]){ //if the edge from minEdgeVertex to p is not 0 and p is not in the mst
+					if(G[minEdgeVertex][p] < distTo[p]){ // if the edge from minEdgeVertex to p is lighter than the current shortest edge to the mst
+						distTo[p] = G[minEdgeVertex][p]; // update the shortest edge to the mst
+						edgeTo[p] = minEdgeVertex; // update the parent vertices of p
+						if(pq.contains(p)){ // if p is in the pq, update the shortest edge to the mst
+							pq.changeKey(p, distTo[p]);
+						}else{ // if p is not in the pq, add it to the pq
+							pq.insert(p, distTo[p]);
+						}
+					}
+				}
+			}
+		}
+		return primMst;
+	}
+
+	private static Queue<double[]> kruskal(double[][] G, int G_length){
+		Queue<double[]> krusualMst = new Queue<double[]>();
+		Edge[] edges = new Edge[G_length * ((G_length-1) / 2)];
+		int index = 0;
+		
+		for(int i = 0; i < G_length; i++){
+			for(int j = i+1; j < G_length; j++){
+				if(G[i][j] > 0.0){
+					edges[index++] = new Edge(i, j, G[i][j]);
+				}
+			}
+		}
+
+		Array.sort(edges, Comparator.comparingDouble(Edge::weight));
+	}
+
 	static boolean PrimVsKruskal(double[][] G){
 		int n = G.length;
 
 		/* Build the MST by Prim's and the MST by Kruskal's */
 		/* (You may add extra methods if necessary) */
-		
+
 		/* ... Your code here ... */
+		Queue<double[]> primResult = eagerPrim(G, n);
+    	System.out.println("Prim Tree:");
+		double totalWeight = 0.0;
+		while (!primResult.isEmpty()) {
+			double[] edge = primResult.dequeue();
+			System.out.printf("%.0f-%.0f %.5f\n", edge[0], edge[1], edge[2]);
+			totalWeight += edge[2];
+		}
 		
-		
+		System.out.printf("%.5f\n", totalWeight);
 		/* Determine if the MST by Prim equals the MST by Kruskal */
 		boolean pvk = true;
 		/* ... Your code here ... */
