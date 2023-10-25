@@ -47,25 +47,10 @@ public class PrimVsKruskal{
 		value of G[i][j] gives the weight of the edge.
 		No entries of G will be negative.
 	*/
-
-	private Queue<Edge> mst = new Queue<>();
-	private boolean marked[]; // if the vertext is in the MST, then marked[v] = true
-	private MinPQ<Edge> pq; // priority queue of edges, for Kursual algorithm
-	private Edge[] edgeTo; // for prim algorithm to find the shorest edge from the MST to the non-MST
-	private double[] distTo; // for prim algorithm to store the shorest distance from the MST to the non-MST
-
-	private static class SpanningTree {
-		
-	}
-
-	public static SpanningTree eagerPrim(double[][] G){
-
-
-	}
-
-	public static SpanningTree Kruskal(double[][] G){
-
-	}
+	private int[] primEdgeTo;
+	private double[] primDistTo;
+	private boolean[] primMarked;
+	private IndexMinPQ<Double> primPQ;
 	static boolean PrimVsKruskal(double[][] G){
 		int n = G.length;
 
