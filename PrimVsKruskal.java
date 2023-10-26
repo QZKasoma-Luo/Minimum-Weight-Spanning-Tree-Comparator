@@ -134,21 +134,37 @@ public class PrimVsKruskal {
 		/* ... Your code here ... */
 
 		IndexMinPQ<Edge> primPQ = new IndexMinPQ<Edge>(n); // choose the lightest edge and delete it from the pq and add it to mst
-		//the krusukal will load all the edge to the pq at the beginning, that we need to set the possible max size of the graph
-		IndexMinPQ<Edge> kruskalPQ = new IndexMinPQ<Edge>(n * ((n) / 2)); 
-
 		double[] primDistTo = new double[n]; //the shortest edge from the current vertices to the mst
 		int primEdgeTo[] = new int[n]; // store the parent vertices of the current vertices
 		boolean[] primMarked = new boolean[n]; // ture if the vertices is in the Prim mst
-		Queue<double[]> primMst = new Queue<double[]>(); // store the Prim mst
+		Queue<Edge> primMst = new Queue<Edge>(); // store the Prim mst
 
-		Queue<double[]> kruskalMst = new Queue<double[]>();
+
+		IndexMinPQ<Edge> kruskalPQ = new IndexMinPQ<Edge>(n * ((n) / 2)); //the krusukal will load all the edge to the pq at the beginning, that we need to set the possible max size of the graph
+		Queue<Edge> kruskalMst = new Queue<Edge>();
         Edge[] kruskalEdges = new Edge[n * ((n-1) / 2)];
-        int kruskalIndex = 0;
 		UF kruskalUF = new UF(n);
 		int krusukalveretxCounter = 0; // count the number of vertices in the kruskal mst
 
+		// intialize the prim
+		for (int v = 0; v < n; v++) { 
+				primDistTo[v] = Double.POSITIVE_INFINITY;
+		}
+		primDistTo[0] = 0.0;
+		primPQ.insert(0, new Edge(0, 0, 0.0)); // create an Edge object with 0 weight and insert it into the pq
 
+		// intial the kruskal
+		int kruskalIndex = 0; 
+		for(int i = 0; i < n; i++){
+			for(int j = i + 1; j < n; j++){
+				if(G[i][j] > 0.0){
+					Edge edge = new Edge(i, j, G[i][j]); // create an Edge object from the double value
+					kruskalEdges[kruskalIndex] = edge;
+					kruskalPQ.insert(kruskalIndex, edge); // insert the Edge object into the kruskalPQ
+					kruskalIndex++;
+				}
+			}
+		}
 
 		// Queue<double[]> primResult = eagerPrim(G, n);
     	// System.out.println("Prim Tree:");
@@ -175,56 +191,6 @@ public class PrimVsKruskal {
 		boolean pvk = true;
 		/* ... Your code here ... */
 		while(!primPQ.isEmpty() || !kruskalPQ.isEmpty()){
-			for (int v = 0; v < n; v++) {
-				primDistTo[v] = Double.POSITIVE_INFINITY;
-			}
-			for (int i = 0; i < n; i++) {
-				for (int j = i + 1; j < n; j++) {
-					if (G[i][j] > 0.0) {
-						kruskalEdges[kruskalIndex] = new Edge(i, j, G[i][j]);
-						kruskalPQ.insert(kruskalIndex, G[i][j]);
-						kruskalIndex++;
-					}
-				}
-			}
-			primDistTo[0] = 0.0;
-			primPQ.insert(0, 0.0);
-			kruskalUF = new UF(n);
-
-			while (!primPQ.isEmpty()) { // while pq is not empty it means there are still vertices not in the mst
-				int minEdgeVertex = primPQ.delMin(); // delete the lightest edge to a veretx from pq and return that veretx to minEdgeVertex
-				primMarked[minEdgeVertex] = true; // mark the current minEdgeVertex is visited
-				if (minEdgeVertex != 0) { // check if the vertex is not the root
-					// add the edge to the mst
-					primMst.enqueue(
-					new double[] { primEdgeTo[minEdgeVertex], minEdgeVertex, G[primEdgeTo[minEdgeVertex]][minEdgeVertex] });
-				}
-				for (int p = 0; p < n; p++) { // check all the vertices to update their shortest edge to the mst
-					if (G[minEdgeVertex][p] > 0.0 && !primMarked[p]) { // if the edge from minEdgeVertex to p is not 0 and p is not in the mst
-						if (G[minEdgeVertex][p] < primDistTo[p]) { // if the edge from minEdgeVertex to p is lighter than the urrent shortest edge to the mst
-							primDistTo[p] = G[minEdgeVertex][p]; // update the shortest edge to the mst
-							primEdgeTo[p] = minEdgeVertex; // update the parent vertices of p
-							if (primPQ.contains(p)) { // if p is in the pq, update the shortest edge to the mst
-								primPQ.changeKey(p, primDistTo[p]);
-							} else { // if p is not in the pq, add it to the pq
-								primPQ.insert(p, primDistTo[p]);
-							}
-						}
-					}
-				}
-			}
-
-			while (!kruskalPQ.isEmpty()) {
-				int edgeIndex = kruskalPQ.delMin(); // get the index of the smallest edge
-				Edge e = kruskalEdges[edgeIndex];
-				int v = e.either();
-				int w = e.other(v);
-				if (kruskalUF.find(v) != kruskalUF.find(w)) {
-					kruskalUF.union(v, w);
-					kruskalMst.enqueue(new double[] { v, w, e.weight() });
-				}
-			}
-
 			
 		
 		}
