@@ -33,6 +33,7 @@
 import edu.princeton.cs.algs4.*;
 import java.util.Scanner;
 import java.io.File;
+import java.util.HashSet;
 
 //Do not change the name of the PrimVsKruskal class
 public class PrimVsKruskal {
@@ -127,8 +128,8 @@ public class PrimVsKruskal {
 				if(kruskalUF.find(v) != kruskalUF.find(m)){
 					kruskalUF.union(v, m);
 					kruskalMst.enqueue(e);
-					
 				}
+				
 			}
 			// The key is to look at - and tag - each edge as they're viewed 
 			// Whenever a tree looks at an edge and includes it in the tree, mark it as "included"
