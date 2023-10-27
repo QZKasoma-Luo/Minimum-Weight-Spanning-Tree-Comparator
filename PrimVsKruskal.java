@@ -50,80 +50,6 @@ public class PrimVsKruskal {
 	 * value of G[i][j] gives the weight of the edge.
 	 * No entries of G will be negative.
 	 */
-	private static Queue<double[]> eagerPrim(double[][] G, int G_length) {
-		double[] distTo = new double[G_length]; // the shortest edge from the current vertices to the mst
-		int edgeTo[] = new int[G_length]; // store the parent vertices of the current vertices
-		boolean[] marked = new boolean[G_length]; // ture if the vertices is in the mst
-		IndexMinPQ<Double> pq = new IndexMinPQ<Double>(G_length);// choose the lightest edge and delete it from the pq
-																	// and add it to mst
-		Queue<double[]> primMst = new Queue<double[]>(); // store the mst
-
-		for (int i = 0; i < G_length; i++) {
-			distTo[i] = Double.POSITIVE_INFINITY;
-		}
-		distTo[0] = 0.0;
-		pq.insert(0, 0.0);
-
-		while (!pq.isEmpty()) { // while pq is not empty it means there are still vertices not in the mst
-			int minEdgeVertex = pq.delMin(); // delete the lightest edge to a veretx from pq and return that veretx to
-												// minEdgeVertex
-			marked[minEdgeVertex] = true; // mark the current minEdgeVertex is visited
-			if (minEdgeVertex != 0) { // check if the vertex is not the root
-				// add the edge to the mst
-				primMst.enqueue(
-						new double[] { edgeTo[minEdgeVertex], minEdgeVertex, G[edgeTo[minEdgeVertex]][minEdgeVertex] });
-			}
-
-			for (int p = 0; p < G_length; p++) { // check all the vertices to update their shortest edge to the mst
-				if (G[minEdgeVertex][p] > 0.0 && !marked[p]) { // if the edge from minEdgeVertex to p is not 0 and p is
-																// not in the mst
-					if (G[minEdgeVertex][p] < distTo[p]) { // if the edge from minEdgeVertex to p is lighter than the
-															// current shortest edge to the mst
-						distTo[p] = G[minEdgeVertex][p]; // update the shortest edge to the mst
-						edgeTo[p] = minEdgeVertex; // update the parent vertices of p
-						if (pq.contains(p)) { // if p is in the pq, update the shortest edge to the mst
-							pq.changeKey(p, distTo[p]);
-						} else { // if p is not in the pq, add it to the pq
-							pq.insert(p, distTo[p]);
-						}
-					}
-				}
-			}
-		}
-		return primMst;
-	}
-
-	private static Queue<Edge> kruskal(double[][] G, int G_length) {
-		Queue<Edge> kruskalMst = new Queue<Edge>();
-		IndexMinPQ<Double> edgePQ = new IndexMinPQ<Double>(G_length * ((G_length - 1) / 2));
-		Edge[] edges = new Edge[G_length * ((G_length - 1) / 2)];
-		int index = 0;
-
-		for (int i = 0; i < G_length; i++) {
-			for (int j = i + 1; j < G_length; j++) {
-				if (G[i][j] > 0.0) {
-					edges[index] = new Edge(i, j, G[i][j]);
-					edgePQ.insert(index, G[i][j]);
-					index++;
-				}
-			}
-		}
-
-		UF kruskalUF = new UF(G_length);
-
-		while (!edgePQ.isEmpty()) {
-			int edgeIndex = edgePQ.delMin(); // get the index of the smallest edge
-			Edge e = edges[edgeIndex];
-			int v = e.either();
-			int w = e.other(v);
-			if (kruskalUF.find(v) != kruskalUF.find(w)) {
-				kruskalUF.union(v, w);
-				kruskalMst.enqueue(e); // instead of adding the double array, add the Edge itself
-			}
-		}
-
-		return kruskalMst;
-	}	
 
 	static boolean PrimVsKruskal(double[][] G){
 		int n = G.length;
@@ -137,64 +63,80 @@ public class PrimVsKruskal {
 		double[] primDistTo = new double[n]; //the shortest edge from the current vertices to the mst
 		int primEdgeTo[] = new int[n]; // store the parent vertices of the current vertices
 		boolean[] primMarked = new boolean[n]; // ture if the vertices is in the Prim mst
-		Queue<Edge> primMst = new Queue<Edge>(); // store the Prim mst
+		Queue<Edge> primMst = new Queue<Edge>();
 
 
 		IndexMinPQ<Edge> kruskalPQ = new IndexMinPQ<Edge>(n * ((n) / 2)); //the krusukal will load all the edge to the pq at the beginning, that we need to set the possible max size of the graph
 		Queue<Edge> kruskalMst = new Queue<Edge>();
-        Edge[] kruskalEdges = new Edge[n * ((n-1) / 2)];
-		UF kruskalUF = new UF(n);
-		int krusukalveretxCounter = 0; // count the number of vertices in the kruskal mst
+        Edge[] kruskalEdges = new Edge[n * ((n-1) / 2)]; //the krusukal will load all the edge to the pq at the beginning, that we need to set the possible max size of the graph
+		UF kruskalUF = new UF(n); //Union find to balance the mst
 
 		// intialize the prim
-		for (int v = 0; v < n; v++) { 
-				primDistTo[v] = Double.POSITIVE_INFINITY;
+		for (int veretx = 0; veretx < n; veretx++) { 
+				primDistTo[veretx] = Double.POSITIVE_INFINITY; //set all the edge weight to infinity to indicate the mst edge connection status.
 		}
 		primDistTo[0] = 0.0;
-		primPQ.insert(0, new Edge(0, 0, 0.0)); // create an Edge object with 0 weight and insert it into the pq
+		primPQ.insert(0, new Edge(0, 0, 0.0)); // add the starting vertex 0 with no any edges to the primPQ
 
 		// intial the kruskal
-		int kruskalIndex = 0; 
+		int kruskalIndex = 0; //use to store the edges
 		for(int i = 0; i < n; i++){
 			for(int j = i + 1; j < n; j++){
-				if(G[i][j] > 0.0){
-					Edge edge = new Edge(i, j, G[i][j]); // create an Edge object from the double value
-					kruskalEdges[kruskalIndex] = edge;
+				if(G[i][j] > 0.0){ //check if veretx i and veretx j has an edge that connects each other
+					Edge edge = new Edge(i, j, G[i][j]); // create an Edge object from the G
+					kruskalEdges[kruskalIndex] = edge; //insert all the edge to the kruskalEdgeList
 					kruskalPQ.insert(kruskalIndex, edge); // insert the Edge object into the kruskalPQ
 					kruskalIndex++;
 				}
 			}
 		}
 
-		// Queue<double[]> primResult = eagerPrim(G, n);
-    	// System.out.println("Prim Tree:");
-		// double totalWeight = 0.0;
-		// while (!primResult.isEmpty()) {
-		// 	double[] edge = primResult.dequeue();
-		// 	System.out.printf("%.0f-%.0f %.5f\n", edge[0], edge[1], edge[2]);
-		// 	totalWeight += edge[2];
-		// }
-		
-		// System.out.printf("%.5f\n", totalWeight);
-
-		// Queue<double[]> kruskalResult = kruskal(G, n);
-		// System.out.println("Kruskal Tree:");
-		// double totalWeight2 = 0.0;
-		// while(!kruskalResult.isEmpty()){
-		// 	double[] edge = kruskalResult.dequeue();
-		// 	System.out.printf("%.0f-%.0f %.5f\n", edge[0], edge[1], edge[2]);
-		// 	totalWeight2 += edge[2];
-		// }
-		// System.out.printf("%.5f\n", totalWeight2);
-
 		/* Determine if the MST by Prim equals the MST by Kruskal */
 		boolean pvk = true;
 		/* ... Your code here ... */
 		while(!primPQ.isEmpty() || !kruskalPQ.isEmpty()){
 			
-		
-		}
-		return pvk;	
+			//eagerPrim part
+			if(!primPQ.isEmpty()){
+				int minEdgeVertex = primPQ.delMin(); //deletes and return the veretx associated with the smallest edge
+				primMarked[minEdgeVertex] = true; //add the vertext to the mst
+				if(minEdgeVertex != 0){ //we initialed the primPQ with starting veretx 0, so we need to make sure we don't repeatly add the vertex 0 again
+					Edge edge = new Edge(primEdgeTo[minEdgeVertex], minEdgeVertex, G[primEdgeTo[minEdgeVertex]][minEdgeVertex]);
+					primMst.enqueue(edge);
+				}
+
+				for(int p = 0; p<n; p++){ //check the minEdgeVertex are connected with which veretx in the graph G by going through the adj matraix
+					if(G[minEdgeVertex][p] > 0 && !primMarked[p] && G[minEdgeVertex][p] < primDistTo[p]){ //if there is a veretx p that has an edge with minEdgeVeretx, then check if p is already in the primMst and if there is other edge that is lighter that this one
+						primDistTo[p] = G[minEdgeVertex][p];
+						primEdgeTo[p] = minEdgeVertex;
+						if(primPQ.contains(p)){
+							primPQ.changeKey(p, new Edge(p, p, primDistTo[p]));
+						}else{
+							primPQ.insert(p, new Edge(p,p,primDistTo[p]));
+						}
+					}
+				}
+			}	
+			
+			//kruskal part
+			if(!kruskalPQ.isEmpty()){
+				int edgeIndex = kruskalPQ.delMin();
+				Edge e = kruskalEdges[edgeIndex];
+				int v = e.either();
+				int m = e.other(v);
+				if(kruskalUF.find(v) != kruskalUF.find(m)){
+					kruskalUF.union(v, m);
+					kruskalMst.enqueue(e);
+					
+				}
+			}
+			// The key is to look at - and tag - each edge as they're viewed 
+			// Whenever a tree looks at an edge and includes it in the tree, mark it as "included"
+			// Whenever a tree looks at an edge and rejects it, mark it as "excluded" 
+			// Then, if one of the algorithms wants to mark an edge as something, but its already been marked as the other thing by the other algorithm
+		}	
+
+				return pvk;	
 	}
 
 	/*
