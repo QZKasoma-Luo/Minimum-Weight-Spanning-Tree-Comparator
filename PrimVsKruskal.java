@@ -31,9 +31,11 @@
 */
 
 import edu.princeton.cs.algs4.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.io.File;
-import java.util.HashSet;
 
 //Do not change the name of the PrimVsKruskal class
 public class PrimVsKruskal {
@@ -65,6 +67,7 @@ public class PrimVsKruskal {
 		int primEdgeTo[] = new int[n]; // store the parent vertices of the current vertices
 		boolean[] primMarked = new boolean[n]; // ture if the vertices is in the Prim mst
 		Queue<Edge> primMst = new Queue<Edge>();
+		List<Edge> excludedEdges = new ArrayList<>();
 
 
 		IndexMinPQ<Edge> kruskalPQ = new IndexMinPQ<Edge>(n * ((n) / 2)); //the krusukal will load all the edge to the pq at the beginning, that we need to set the possible max size of the graph
@@ -100,21 +103,29 @@ public class PrimVsKruskal {
 			//eagerPrim part
 			if(!primPQ.isEmpty()){
 				int minEdgeVertex = primPQ.delMin(); //deletes and return the veretx associated with the smallest edge
+				if(primMarked[minEdgeVertex]) continue;
 				primMarked[minEdgeVertex] = true; //add the vertext to the mst
 				if(minEdgeVertex != 0){ //we initialed the primPQ with starting veretx 0, so we need to make sure we don't repeatly add the vertex 0 again
 					Edge edge = new Edge(primEdgeTo[minEdgeVertex], minEdgeVertex, G[primEdgeTo[minEdgeVertex]][minEdgeVertex]);
 					primMst.enqueue(edge);
 				}
 
-				for(int p = 0; p<n; p++){ //check the minEdgeVertex are connected with which veretx in the graph G by going through the adj matraix
-					if(G[minEdgeVertex][p] > 0 && !primMarked[p] && G[minEdgeVertex][p] < primDistTo[p]){ //if there is a veretx p that has an edge with minEdgeVeretx, then check if p is already in the primMst and if there is other edge that is lighter that this one
-						primDistTo[p] = G[minEdgeVertex][p];
-						primEdgeTo[p] = minEdgeVertex;
-						if(primPQ.contains(p)){
-							primPQ.changeKey(p, new Edge(p, p, primDistTo[p]));
-						}else{
-							primPQ.insert(p, new Edge(p,p,primDistTo[p]));
+				for(int p = 0; p < n; p++){ //check the minEdgeVertex are connected with which vertex in the graph G by going through the adjacency matrix
+					if(G[minEdgeVertex][p] > 0 && !primMarked[p]){
+						if(G[minEdgeVertex][p] < primDistTo[p]){
+							primDistTo[p] = G[minEdgeVertex][p];
+							primEdgeTo[p] = minEdgeVertex;
+							if(primPQ.contains(p)){
+								primPQ.changeKey(p, new Edge(p, p, primDistTo[p]));
+							}else{
+								primPQ.insert(p, new Edge(p, p, primDistTo[p]));
+							}
+						}else if(G[minEdgeVertex][p] > primDistTo[p]){
+							excludedEdges.add(new Edge(minEdgeVertex, p, G[minEdgeVertex][p]));
+						}else if (G[minEdgeVertex][p] == primDistTo[p] && !primMarked[minEdgeVertex] != !primMarked[p]) {
+							excludedEdges.add(new Edge(minEdgeVertex, p, G[minEdgeVertex][p]));
 						}
+						// Note: If G[minEdgeVertex][p] == primDistTo[p], do nothing
 					}
 				}
 			}	
@@ -129,7 +140,9 @@ public class PrimVsKruskal {
 					kruskalUF.union(v, m);
 					kruskalMst.enqueue(e);
 				}
-				
+				if(excludedEdges.contains(e)){ // Check if the edge is in the excludedEdge list
+					pvk = false;
+				}
 			}
 			// The key is to look at - and tag - each edge as they're viewed 
 			// Whenever a tree looks at an edge and includes it in the tree, mark it as "included"
@@ -137,7 +150,27 @@ public class PrimVsKruskal {
 			// Then, if one of the algorithms wants to mark an edge as something, but its already been marked as the other thing by the other algorithm
 		}	
 
-				return pvk;	
+		double primTotalWeight = 0.0;
+		System.out.println("Prim MST:");
+		for (Edge e : primMst) {
+			int v = e.either();
+			int w = e.other(v);
+			System.out.println(v + " - " + w + " : " + e.weight());
+			primTotalWeight += e.weight();
+		}
+		System.out.println("Total weight of Prim MST: " + primTotalWeight);
+		double kruskalTotalWeight = 0.0;
+		
+		System.out.println("Kruskal MST:");
+		for (Edge e : kruskalMst) {
+			int v = e.either();
+			int w = e.other(v);
+			System.out.println(v + " - " + w + " : " + e.weight());
+			kruskalTotalWeight += e.weight();
+		}
+			System.out.println("Total weight of Kruskal MST: " + kruskalTotalWeight);
+			
+			return pvk;	
 	}
 
 	/*
